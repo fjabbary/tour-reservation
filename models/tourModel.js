@@ -51,7 +51,6 @@ const tourSchema = new mongoose.Schema({
             },
             message: 'The price ({VALUE}) must be higher than the price Discount'
         }
-
     },
     summary: {
         type: String,
@@ -121,4 +120,4 @@ tourSchema.pre('aggregate', function (next) {
 
 const Tour = mongoose.model('Tour', tourSchema)
 
-module.exports = Tour;
+module.exports = Tour; 
