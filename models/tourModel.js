@@ -107,8 +107,7 @@ tourSchema.pre(/^find/, function (next) {
 
 tourSchema.post(/^find/, function (docs, next) {
     // this points to the current query
-    console.log(`Query took ${Date.now() - this.start}`);
-    console.log(docs);
+    console.log(`Query took ${Date.now() - this.start} milliseconds`);
     next();
 })
 
