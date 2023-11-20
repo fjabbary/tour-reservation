@@ -11,6 +11,27 @@ const signToken = id => {
     })
 }
 
+const cookieOptions = {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+    httpOnly: true
+}
+
+const sendTokenCookie = (user, res) => {
+    const token = signToken(user._id)
+    if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+    res.cookie('jwt', token, cookieOptions)
+    user.password = undefined;
+
+
+    res.status(201).json({
+        status: 'success',
+        token,
+        data: {
+            user
+        }
+    })
+}
+
 exports.signup = async (req, res, next) => {
     try {
         const newUser = await User.create({
@@ -22,18 +43,14 @@ exports.signup = async (req, res, next) => {
             role: req.body.role
         })
 
-        const token = signToken(newUser._id)
+        sendTokenCookie(newUser, res)
 
-        res.status(201).json({
-            status: 'success',
-            token,
-            data: {
-                user: newUser
-            }
-        })
+        // Remove password from outtput
+
+
     } catch (err) {
         res.status(404).json({
-            status: 'fail',
+            status: 'Sign up fail',
             message: err
         })
     }
@@ -56,12 +73,8 @@ exports.login = async (req, res, next) => {
         })
     }
 
-    const token = signToken(user._id);
+    sendTokenCookie(user, res)
 
-    res.status(200).json({
-        status: 'success',
-        token
-    })
 }
 
 exports.protect = async (req, res, next) => {
@@ -180,12 +193,8 @@ exports.resetPassword = async (req, res, next) => {
     // updated changePasswordAt property for the user
 
     // Log user in
-    const token = signToken(user._id);
+    sendTokenCookie(user, res)
 
-    res.status(200).json({
-        status: 'success',
-        token
-    })
 }
 
 exports.updatePassword = async (req, res, next) => {
@@ -205,10 +214,5 @@ exports.updatePassword = async (req, res, next) => {
     await user.save();
 
     // Log user in, send JWT 
-    const token = signToken(user._id);
-
-    res.status(200).json({
-        status: 'success',
-        token
-    })
+    sendTokenCookie(user, res)
 }
