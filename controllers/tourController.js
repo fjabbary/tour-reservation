@@ -47,7 +47,7 @@ exports.getTour = async (req, res) => {
     }
 }
 
-exports.addTour = catchAsync(async (req, res) => {
+exports.addTour = async (req, res) => {
     const newTour = await Tour.create(req.body)
 
     res.status(201).json({
@@ -56,7 +56,7 @@ exports.addTour = catchAsync(async (req, res) => {
             tour: newTour
         }
     })
-})
+}
 
 exports.updateTour = catchAsync(async (req, res) => {
 

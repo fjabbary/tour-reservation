@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
+// const User = require('./UserModel');
 
 const tourSchema = new mongoose.Schema({
     name: {
@@ -9,21 +10,20 @@ const tourSchema = new mongoose.Schema({
         unique: true,
         trim: true,
         minlength: [10, 'The tour name must have less or euqal than 40 characters'],
-        maxlength: [40, 'The tour name must have more or euqal than 40 characters'],
-        validate: [validator.isAlpha, 'Tour name must only contain characters']
+        maxlength: [40, 'The tour name must have more or euqal than 40 characters']
     },
     slug: String,
     duration: {
         type: Number,
-        required: [true, 'A tour must have a duration']
+        required: [false, 'A tour must have a duration']
     },
     maxGroupSize: {
         type: Number,
-        required: [true, 'A tour must have a maximum group size']
+        required: [false, 'A tour must have a maximum group size']
     },
     difficulty: {
         type: String,
-        required: [true, 'A tour must have a difficulty level'],
+        required: [false, 'A tour must have a difficulty level'],
         enum: {
             values: ['easy', 'medium', 'difficult'],
             message: 'Difficulty level must be easy, medium or difficult'
@@ -41,7 +41,7 @@ const tourSchema = new mongoose.Schema({
     },
     price: {
         type: Number,
-        required: [true, 'A tour must have a price']
+        required: [false, 'A tour must have a price']
     },
     priceDiscount: {
         type: Number,
@@ -55,7 +55,7 @@ const tourSchema = new mongoose.Schema({
     summary: {
         type: String,
         trim: true,
-        required: [true, 'A tour must have a summary']
+        required: [false, 'A tour must have a summary']
     },
     description: {
         type: String,
@@ -63,7 +63,7 @@ const tourSchema = new mongoose.Schema({
     },
     imageCover: {
         type: String,
-        required: [true, 'A tour must have an image cover']
+        required: [false, 'A tour must have an image cover']
     },
     images: [String],
     createdAt: {
@@ -75,7 +75,34 @@ const tourSchema = new mongoose.Schema({
     secretTour: {
         type: Boolean,
         default: false
-    }
+    },
+    startLocation: {
+        // GeoJSON Point
+        type: {
+            type: String,
+            default: 'Point',
+            enum: ['Point']
+        },
+        coordinate: [Number],
+        address: String,
+        description: String
+    },
+    locations: [
+        {
+            type: { type: String, default: 'Point', enum: ['Point'] },
+            coordinates: { type: [Number] },
+            address: String,
+            description: String,
+            day: Number
+        }
+    ],
+    guides: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User'
+        }
+    ]
+
 
 }, {
     toJSON: { virtuals: true },
@@ -92,6 +119,12 @@ tourSchema.pre('save', function (next) {
     next();
 });
 
+// tourSchema.pre('save', async function (next) {
+//     const guidesPromises = this.guides.map(async id => await User.findById(id))
+//     this.guides = await Promise.all(guidesPromises);
+
+//     next();
+// });
 tourSchema.post('save', function (doc, next) {
     console.log(`${doc} has been saved`)
     next();
@@ -102,6 +135,15 @@ tourSchema.pre(/^find/, function (next) {
     // this points to the current query
     this.find({ secretTour: { $ne: true } })
     this.start = Date.now();
+    next();
+})
+
+tourSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'guides',
+        select: '-__v -oasswordChangedAt'
+    });
+
     next();
 })
 
