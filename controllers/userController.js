@@ -1,4 +1,5 @@
 const User = require('../models/UserModel')
+const factory = require('./handlerFactory');
 
 const filterObj = (obj, ...allowedFields) => {
     const newObject = {};
@@ -73,9 +74,6 @@ exports.updateUser = (req, res) => {
     })
 }
 
-exports.deleteUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not defined'
-    })
-}
+// Don't update password with this
+exports.deleteUser = factory.deleteOne(User);
+exports.updateUser = factory.updateOne(User);

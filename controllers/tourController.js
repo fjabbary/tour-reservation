@@ -1,6 +1,7 @@
 const Tour = require('../models/tourModel');
 const APIFeatures = require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
+const factory = require('./handlerFactory')
 
 exports.aliasTopTours = (req, res, next) => {
     req.query.limit = '5'
@@ -29,64 +30,11 @@ exports.getAllTours = async (req, res) => {
     }
 }
 
-exports.getTour = async (req, res) => {
-    try {
-        const id = req.params.id;
-        const tour = await Tour.findById(id).populate('reviews')
 
-        res.status(200).json({
-            status: 'success',
-            data: tour
-        })
-    }
-    catch (err) {
-        res.status(404).json({
-            status: 'fail',
-            message: err
-        })
-    }
-}
-
-exports.addTour = async (req, res) => {
-    const newTour = await Tour.create(req.body)
-
-    res.status(201).json({
-        status: 'success',
-        data: {
-            tour: newTour
-        }
-    })
-}
-
-exports.updateTour = catchAsync(async (req, res) => {
-
-    const id = req.params.id;
-    const updatedTour = await Tour.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
-
-    res.status(201).json({
-        status: 'success',
-        data: {
-            tour: updatedTour
-        }
-    })
-
-})
-
-exports.deleteTour = async (req, res) => {
-    try {
-        const id = req.params.id;
-        await Tour.findByIdAndDelete(id)
-
-        res.status(200).json({
-            status: 'success'
-        })
-    } catch (err) {
-        res.status(400).json({
-            status: 'Fail',
-            message: 'Invalid data sent!'
-        })
-    }
-}
+exports.getTour = factory.getOne(Tour, { path: 'reviews' })
+exports.addTour = factory.createOne(Tour)
+exports.deleteTour = factory.deleteOne(Tour)
+exports.updateTour = factory.updateOne(Tour)
 
 exports.getTourStats = async (req, res) => {
     try {
