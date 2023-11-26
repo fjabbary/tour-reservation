@@ -1,3 +1,4 @@
+const APIFeatures = require('../utils/apiFeatures');
 
 exports.deleteOne = Model => async (req, res) => {
     try {
@@ -57,6 +58,31 @@ exports.getOne = (Model, populateOptions) => async (req, res) => {
         })
     }
     catch (err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
+    }
+}
+
+exports.getAll = Model => async (req, res) => {
+
+    try {
+        let filter = {}
+        if (req.params.tourId) filter = { tour: req.params.tourId }
+
+        const features = new APIFeatures(Model.find(), req.query).filter(filter).sort().limitFields().paginate();
+
+        const doc = await features.query;
+
+        res.status(200).json({
+            status: 'success',
+            results: doc.length,
+            data: {
+                data: doc
+            }
+        })
+    } catch (err) {
         res.status(404).json({
             status: 'fail',
             message: err
