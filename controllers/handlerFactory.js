@@ -49,7 +49,6 @@ exports.getOne = (Model, populateOptions) => async (req, res) => {
         }
         const doc = await query;
 
-
         res.status(200).json({
             status: 'success',
             data: {
