@@ -112,3 +112,63 @@ exports.getMonthlyPlan = async (req, res) => {
         })
     }
 }
+
+exports.getToursWithin = async (req, res, next) => {
+    const { latlng, unit } = req.params;
+    const [lat, lng] = latlng.split(',');
+
+    if (!lat || !lng) {
+        return res.status(400).send({
+            status: 'Please provide correct latitude and longitude'
+        })
+    }
+
+    const tours = await Tour.find({
+        startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }
+    })
+
+    res.status(200).json({
+        status: 'success',
+        resuls: tours.length,
+        data: {
+            data: tours
+        }
+    })
+}
+
+exports.getDistances = async (req, res, next) => {
+    const { latlng, unit } = req.params;
+    const [lat, lng] = latlng.split(',');
+
+    const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+
+    if (!lat || !lng) {
+        return res.status(400).send({
+            status: 'Please provide correct latitude and longitude'
+        })
+    }
+
+    const distances = await Tour.aggregate([
+        // Stage 1 - GeoNear to calculate distance from a point
+        {
+            $geoNear: {
+                near: { type: "Point", coordinates: [lng * 1, lat * 1] },
+                distanceField: "distance",
+                distanceMultiplier: multiplier
+            }
+        },
+        {
+            $project: {
+                distance: 1,
+                name: 1
+            }
+        }
+    ]);
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            data: distances
+        }
+    })
+}

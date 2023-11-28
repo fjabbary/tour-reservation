@@ -1,4 +1,4 @@
-const User = require('../models/UserModel')
+const User = require('../models/userModel')
 const factory = require('./handlerFactory');
 
 const filterObj = (obj, ...allowedFields) => {
