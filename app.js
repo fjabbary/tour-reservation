@@ -9,12 +9,19 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require("hpp");
+const path = require('path');
 
 const tourRouter = require('./routes/tourRoutes')
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 
+
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 // 1) GLOBAL MIDDLEWARES
+// Serving statuc files
+app.use(express.static(path.join(__dirname, 'public')))
 
 // Set security HTTP headers
 app.use(helmet());
@@ -23,7 +30,6 @@ app.use(helmet());
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'))
 }
-
 // Limit request per API
 const limiter = rateLimit({
     windowMs: 10 * 60 * 1000, // 10 min
@@ -51,8 +57,6 @@ app.use(hpp({
         'difficulty',
         'summary']
 }))
-// Serving statuc files
-app.use(express.static(`${__dirname}/public`))
 
 // Test middleware 
 app.use((req, res, next) => {
@@ -62,6 +66,14 @@ app.use((req, res, next) => {
 })
 
 // ROUTES
+
+app.get('/', (req, res, next) => {
+    res.status(200).render('base', {
+        tour: 'The Forest Hiker',
+        user: 'Jonas'
+    });
+})
+
 app.use('/api/v1/tours', tourRouter)
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/reviews', reviewRouter)
@@ -70,6 +82,6 @@ app.all('*', (req, res, next) => {
     next(new appError(`Can't find ${req.originalUrl} on this server!`, 404));
 })
 
-app.use(globalErrorHandler)
+// app.use(globalErrorHandler)
 
 module.exports = app;
