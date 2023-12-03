@@ -85,9 +85,16 @@ app.get('/', async (req, res) => {
     })
 })
 
-app.get('/tour', (req, res) => {
+app.get('/tour/:slug', async (req, res) => {
+    const slug = req.params.slug;
+    const tour = await Tour.findOne({ slug: slug }).populate({
+        path: 'reviews',
+        fields: 'review rating user'
+    })
+
     res.status(200).render('tour', {
-        title: 'Tour'
+        title: tour.name,
+        tour
     })
 })
 
