@@ -14,6 +14,7 @@ const path = require('path');
 const tourRouter = require('./routes/tourRoutes')
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const viewRouter = require('./routes/reviewRoutes');
 
 
 app.set('view engine', 'pug');
@@ -67,16 +68,30 @@ app.use((req, res, next) => {
 
 // ROUTES
 
-app.get('/', (req, res, next) => {
-    res.status(200).render('base', {
-        tour: 'The Forest Hiker',
-        user: 'Jonas'
-    });
-})
-
 app.use('/api/v1/tours', tourRouter)
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/reviews', reviewRouter)
+
+// ============================================================= 
+const Tour = require('./models/tourModel');
+
+
+app.get('/', async (req, res) => {
+    const tours = await Tour.find();
+
+    res.status(200).render('overview', {
+        title: 'All Tours',
+        tours
+    })
+})
+
+app.get('/tour', (req, res) => {
+    res.status(200).render('tour', {
+        title: 'Tour'
+    })
+})
+
+
 
 app.all('*', (req, res, next) => {
     next(new appError(`Can't find ${req.originalUrl} on this server!`, 404));

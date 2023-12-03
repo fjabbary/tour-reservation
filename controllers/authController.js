@@ -58,6 +58,7 @@ exports.signup = async (req, res, next) => {
 
 
 exports.login = async (req, res, next) => {
+
     const { email, password } = req.body;
     if (!email || !password) {
         return res.status(400).json({
@@ -86,7 +87,7 @@ exports.protect = async (req, res, next) => {
 
     if (!token) {
         return res.status(401).json({
-            status: 'Access denied'
+            status: 'You are not logged in'
         });
     }
 
