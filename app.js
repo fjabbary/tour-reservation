@@ -10,6 +10,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require("hpp");
 const path = require('path');
+const cookieParser = require('cookie-parser');
 
 const tourRouter = require('./routes/tourRoutes')
 const userRouter = require('./routes/userRoutes');
@@ -42,6 +43,7 @@ app.use('/api', limiter);
 
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 
 // Data Sanitization against NoSQL query injection
 app.use(mongoSanitize())
@@ -62,7 +64,7 @@ app.use(hpp({
 // Test middleware 
 app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
-    // console.log(req.headers);
+    console.log(req.cookies);
     next();
 })
 
@@ -72,7 +74,8 @@ app.use('/api/v1/tours', tourRouter)
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/reviews', reviewRouter)
 
-// ============================================================= 
+// ========================== Will be refactored to controller and viewRouter later  =================================== \
+const { protect } = require('./controllers/authController')
 const Tour = require('./models/tourModel');
 
 
@@ -85,7 +88,7 @@ app.get('/', async (req, res) => {
     })
 })
 
-app.get('/tour/:slug', async (req, res) => {
+app.get('/tour/:slug', async (req, res, next) => {
     const slug = req.params.slug;
     const tour = await Tour.findOne({ slug: slug }).populate({
         path: 'reviews',
@@ -98,6 +101,13 @@ app.get('/tour/:slug', async (req, res) => {
     })
 })
 
+app.get('/login', async (req, res) => {
+    res.status(200).render('login', {
+        title: 'Login',
+    })
+})
+
+// ===================================================================
 
 
 app.all('*', (req, res, next) => {

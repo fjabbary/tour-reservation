@@ -1,6 +1,6 @@
 // const express = require('express')
 
-// // const { getOverview, getTour } = require('../controllers/viewsController')
+// const { getOverview, getTour, login } = require('../controllers/viewsController')
 // const router = express.Router();
 // router.get('/', (req, res) => {
 //   res.status(200).render('overview', {
@@ -14,6 +14,6 @@
 //   })
 // })
 
+// router.get('/login', login);
 
-
-// module.exports = router;
+module.exports = router;
