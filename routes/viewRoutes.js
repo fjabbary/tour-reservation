@@ -1,19 +1,14 @@
-// const express = require('express')
+const express = require('express');
 
-// const { getOverview, getTour, login } = require('../controllers/viewsController')
-// const router = express.Router();
-// router.get('/', (req, res) => {
-//   res.status(200).render('overview', {
-//     title: 'All Tours'
-//   })
-// })
+const { getOverview, getTour, login } = require('../controllers/viewsController')
+const { protect } = require('../controllers/authController');
 
-// router.get('/tour', (req, res) => {
-//   res.status(200).render('tour', {
-//     title: 'Tour'
-//   })
-// })
+const router = express.Router();
+router.get('/', getOverview)
 
-// router.get('/login', login);
+
+router.get('/tour/:slug', protect, getTour)
+
+router.get('/login', login)
 
 module.exports = router;

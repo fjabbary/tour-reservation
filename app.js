@@ -15,7 +15,7 @@ const cookieParser = require('cookie-parser');
 const tourRouter = require('./routes/tourRoutes')
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
-const viewRouter = require('./routes/reviewRoutes');
+const viewRouter = require('./routes/viewRoutes');
 
 
 app.set('view engine', 'pug');
@@ -64,48 +64,48 @@ app.use(hpp({
 // Test middleware 
 app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
-    console.log(req.cookies);
+    // console.log(req.cookies);
     next();
 })
 
 // ROUTES
+app.use('/', viewRouter)
 
 app.use('/api/v1/tours', tourRouter)
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/reviews', reviewRouter)
-
 // ========================== Will be refactored to controller and viewRouter later  =================================== \
-const { protect } = require('./controllers/authController')
-const Tour = require('./models/tourModel');
+// const { protect } = require('./controllers/authController')
+// const Tour = require('./models/tourModel');
 
 
-app.get('/', async (req, res) => {
-    const tours = await Tour.find();
+// app.get('/', async (req, res) => {
+//     const tours = await Tour.find();
 
-    res.status(200).render('overview', {
-        title: 'All Tours',
-        tours
-    })
-})
+//     res.status(200).render('overview', {
+//         title: 'All Tours',
+//         tours
+//     })
+// })
 
-app.get('/tour/:slug', async (req, res, next) => {
-    const slug = req.params.slug;
-    const tour = await Tour.findOne({ slug: slug }).populate({
-        path: 'reviews',
-        fields: 'review rating user'
-    })
+// app.get('/tour/:slug', async (req, res, next) => {
+//     const slug = req.params.slug;
+//     const tour = await Tour.findOne({ slug: slug }).populate({
+//         path: 'reviews',
+//         fields: 'review rating user'
+//     })
 
-    res.status(200).render('tour', {
-        title: tour.name,
-        tour
-    })
-})
+//     res.status(200).render('tour', {
+//         title: tour.name,
+//         tour
+//     })
+// })
 
-app.get('/login', async (req, res) => {
-    res.status(200).render('login', {
-        title: 'Login',
-    })
-})
+// app.get('/login', async (req, res) => {
+//     res.status(200).render('login', {
+//         title: 'Login',
+//     })
+// })
 
 // ===================================================================
 
