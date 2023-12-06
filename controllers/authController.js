@@ -117,6 +117,34 @@ exports.protect = async (req, res, next) => {
     next();
 }
 
+// only for rendered pages, no errors!
+exports.isLoggedIn = async (req, res, next) => {
+
+    if (req.cookies.jwt) {
+        const decoded = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRET)
+
+        // 3) Check user still exists
+        const currentUser = await User.findById(decoded.id);
+        if (!currentUser) {
+            return res.status(401).json({
+                status: 'The user belonged to this token doen\'t exist'
+            })
+        }
+
+        // 4) Check if user changed password after the token as issued
+        if (currentUser.changePasswordAfter(decoded.iat)) {
+            return res.sendStatus(401).json({
+                status: "Your password has been updated since you logged in"
+            })
+        }
+
+        res.locals.user = currentUser;
+
+    }
+    next();
+}
+
+
 // ['admin', 'guide-lead']
 exports.restrictTo = (...roles) => {
 
