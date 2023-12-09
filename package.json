@@ -3,15 +3,23 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
+  "targets": {
+    "main": false
+  },
   "scripts": {
     "start": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js",
-    "debug": "ndb server.js"
+    "debug": "ndb server.js",
+    "watch:js": "parcel watch ./public/js/index.js --dist-dir ./public/js/bundled",
+    "build:js": "parcel build ./public/js/index.js --dist-dir ./public/js/bundled"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "@types/axios": "^0.14.0",
+    "axios": "^1.6.2",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.3.1",
@@ -32,5 +40,8 @@
   },
   "engines": {
     "node": ">10.x"
+  },
+  "devDependencies": {
+    "parcel": "^2.10.3"
   }
 }

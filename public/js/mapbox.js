@@ -1,54 +1,51 @@
 
-const locations = JSON.parse(document.getElementById('map').dataset.locations)
 
-console.log(locations);
+export const displayMap = (locations) => {
+  mapboxgl.accessToken = 'pk.eyJ1IjoiZmFyemluaiIsImEiOiJjbHBxMTR6MWMwM2g4MmpwZjR3bWUwaGhzIn0.Wn52Dt98_EPzsq9Sy9j08Q';
 
+  var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/farzinj/clpq20jed00bo01pxf0kjbsqb',
+    scrollZoom: false
+    // center: [-118.113491, 34.111745],
+    // zoom: 5
+  });
 
-mapboxgl.accessToken = 'pk.eyJ1IjoiZmFyemluaiIsImEiOiJjbHBxMTR6MWMwM2g4MmpwZjR3bWUwaGhzIn0.Wn52Dt98_EPzsq9Sy9j08Q';
+  const bounds = new mapboxgl.LngLatBounds();
 
-var map = new mapboxgl.Map({
-  container: 'map',
-  style: 'mapbox://styles/farzinj/clpq20jed00bo01pxf0kjbsqb',
-  scrollZoom: false
-  // center: [-118.113491, 34.111745],
-  // zoom: 5
-});
+  locations.forEach(location => {
+    // create marker
+    const el = document.createElement('div');
+    el.className = 'marker';
 
-const bounds = new mapboxgl.LngLatBounds();
+    // add marker
+    new mapboxgl.Marker({
+      element: el,
+      anchor: 'bottom'
+    })
+      .setLngLat(location.coordinates)
+      .addTo(map)
 
-locations.forEach(location => {
-  // create marker
-  const el = document.createElement('div');
-  el.className = 'marker';
+    //popup
 
-  // add marker
-  new mapboxgl.Marker({
-    element: el,
-    anchor: 'bottom'
+    new mapboxgl.Popup({
+      offset: 30
+    })
+      .setLngLat(location.coordinates)
+      .setHTML(`<p>Day ${location.day}: ${location.description}</p>`)
+      .addTo(map);
+
+    bounds.extend(location.coordinates);
   })
-    .setLngLat(location.coordinates)
-    .addTo(map)
 
-  //popup
+  map.fitBounds(bounds, {
+    padding: {
+      top: 200,
+      bottom: 150,
+      left: 100,
+      right: 100
+    }
+  });
 
-  new mapboxgl.Popup({
-    offset: 30
-  })
-    .setLngLat(location.coordinates)
-    .setHTML(`<p>Day ${location.day}: ${location.description}</p>`)
-    .addTo(map);
-
-  bounds.extend(location.coordinates);
-})
-
-map.fitBounds(bounds, {
-  padding: {
-    top: 200,
-    bottom: 150,
-    left: 100,
-    right: 100
-  }
-});
-
-
-map.addControl(new mapboxgl.NavigationControl());
+  map.addControl(new mapboxgl.NavigationControl());
+}
