@@ -78,6 +78,15 @@ exports.login = async (req, res, next) => {
 
 }
 
+exports.logout = (req, res) => {
+    res.cookie('jwt', 'loggedout', {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true
+    })
+
+    res.status(200).json({ status: 'success' })
+}
+
 exports.protect = async (req, res, next) => {
     // 1) Check if token exists
     let token;
@@ -113,6 +122,7 @@ exports.protect = async (req, res, next) => {
     }
 
     req.user = currentUser;
+    res.locals.user = currentUser;
 
     next();
 }
@@ -121,24 +131,30 @@ exports.protect = async (req, res, next) => {
 exports.isLoggedIn = async (req, res, next) => {
 
     if (req.cookies.jwt) {
-        const decoded = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRET)
+        try {
+            const decoded = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRET)
 
-        // 3) Check user still exists
-        const currentUser = await User.findById(decoded.id);
-        if (!currentUser) {
-            return res.status(401).json({
-                status: 'The user belonged to this token doen\'t exist'
-            })
+            // 3) Check user still exists
+            const currentUser = await User.findById(decoded.id);
+            if (!currentUser) {
+                return res.status(401).json({
+                    status: 'The user belonged to this token doen\'t exist'
+                })
+            }
+
+            // 4) Check if user changed password after the token as issued
+            if (currentUser.changePasswordAfter(decoded.iat)) {
+                return res.sendStatus(401).json({
+                    status: "Your password has been updated since you logged in"
+                })
+            }
+
+            res.locals.user = currentUser;
+            return next();
+        } catch (e) {
+            return next();
         }
 
-        // 4) Check if user changed password after the token as issued
-        if (currentUser.changePasswordAfter(decoded.iat)) {
-            return res.sendStatus(401).json({
-                status: "Your password has been updated since you logged in"
-            })
-        }
-
-        res.locals.user = currentUser;
 
     }
     next();
