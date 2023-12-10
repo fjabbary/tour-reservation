@@ -578,7 +578,7 @@ var _login = require("./login");
 // import '@babel/polyfill';
 var _mapbox = require("./mapbox");
 const mapBox = document.getElementById("map");
-const loginForm = document.querySelector(".form");
+const loginForm = document.querySelector(".form--login");
 const logOutBtn = document.querySelector(".nav__el--logout");
 if (mapBox) {
     const locations = JSON.parse(mapBox.dataset.locations);

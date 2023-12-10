@@ -1,5 +1,6 @@
 const Tour = require('../models/tourModel');
-const AppError = require('../utils/appError')
+const User = require('../models/userModel');
+const AppError = require('../utils/appError');
 
 exports.getOverview = async (req, res) => {
   const tours = await Tour.find();
@@ -36,5 +37,21 @@ exports.login = (req, res) => {
 exports.getAccount = (req, res) => {
   res.status(200).render('account', {
     title: 'Your Account',
+  })
+}
+
+exports.updateUserData = async (req, res, next) => {
+  const uupdatedUser = await User.findByIdAndUpdate(req.user.id, {
+    name: req.body.name,
+    email: req.body.email
+  },
+    {
+      new: true,
+      runValidators: true
+    })
+
+  res.status(200).render('account', {
+    title: 'Your Account',
+    user: uupdatedUser
   })
 }
