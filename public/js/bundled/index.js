@@ -596,12 +596,12 @@ if (loginForm) loginForm.addEventListener("submit", (e)=>{
 if (logOutBtn) logOutBtn.addEventListener("click", (0, _login.logout));
 if (userDataForm) userDataForm.addEventListener("submit", (e)=>{
     e.preventDefault();
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
-    (0, _updateSettings.updateSettings)({
-        name,
-        email
-    }, "data");
+    const form = new FormData();
+    form.append("name", document.getElementById("name").value);
+    form.append("email", document.getElementById("email").value);
+    form.append("photo", document.getElementById("photo").files[0]);
+    console.log(form);
+    (0, _updateSettings.updateSettings)(form, "data");
 });
 if (userPasswordForm) userPasswordForm.addEventListener("submit", async (e)=>{
     e.preventDefault();
@@ -614,7 +614,7 @@ if (userPasswordForm) userPasswordForm.addEventListener("submit", async (e)=>{
         password,
         passwordConfirm
     }, "password");
-    document.querySelector(".btn--save-password").textContent = "Save password";
+    document.querySelector(".btn--save-password").textContent = "Save passwordf";
     document.getElementById("password-current").value = "";
     document.getElementById("password").value = "";
     document.getElementById("password-confirm").value = "";
@@ -756,7 +756,7 @@ const updateSettings = async (data, type)=>{
             url,
             data
         });
-        console.log("object");
+        console.log(data);
         if (res.data.status === "success") (0, _alert.showAlert)("success", `${type.toUpperCase()} updated successfully`);
     } catch (error) {
         (0, _alert.showAlert)("error", err.response.data.message);
