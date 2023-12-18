@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 const pug = require('pug')
-const htmlToText = require('html-to-text');
+const { htmlToText } = require('html-to-text');
 
 
 module.exports = class Email {
@@ -29,12 +29,18 @@ module.exports = class Email {
 
     // send the actual email
     async send(template, subject) {
+
         // 1) Render HTML based on a pug template 
-        const html = pug.renderFile(`${__dirname}/../views/emails/${template}.pug`, {
-            filename: this.firstName,
+        const x = pug.renderFile(`${__dirname}/../views/email/${template}.pug`)
+        console.log(x);
+
+        const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
+            firstName: this.firstName,
             url: this.url,
             subject
         });
+
+        console.log('========= ', template);
 
         // 2) Define email options
         const mailOptions = {
@@ -42,7 +48,7 @@ module.exports = class Email {
             to: this.to,
             subject,
             html,
-            text: htmlToText.fromString(html)
+            text: htmlToText(html)
         }
 
         // 3) create transport and send email
@@ -51,5 +57,9 @@ module.exports = class Email {
 
     async sendWelcome() {
         await this.send('welcome', 'Welcome to the Natours Familty!');
+    }
+
+    async sendPasswordReset() {
+        await this.send('passwordReset', 'Your password reset token (valid for 10 minutes)');
     }
 }
